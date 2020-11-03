@@ -1,0 +1,18 @@
+# 在线 cron 语法编辑器 http://crontab.guru/
+jobs:
+  - url: http://www.wener.tech
+    # 时间间隔 ms,s,m,h
+    interval: 5s
+    # 也可以使用 corn 语法
+    # spec: "*/10 * * * *" # 每十分钟
+    name: track
+  - url: http://www.wener.tech
+    interval: 5s
+    log:
+      # 标准日志输出到该文件, 如果配置为 . 则会用规则的格式生成日志文件 job.名字或索引.log
+      file: test.log
+      # 输出请求响应
+      response: true
+log:
+  level: debug
+  file: log.log

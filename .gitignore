@@ -1,0 +1,11 @@
+*.out
+*.log
+ignored
+.idea
+*.exe
+.cache
+dm-launcher
+dist
+.DS_Store
+ignored*
+bin/

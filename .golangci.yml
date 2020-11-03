@@ -1,0 +1,47 @@
+run:
+  skip-dirs:
+    - vendor
+    - pkg/res
+    - pkg/icon
+    - pkg/web
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - deadcode
+    - depguard
+    - dogsled
+    - dupl
+    - funlen
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - interfacer
+    - misspell
+    - unconvert
+    - gosec
+
+linters-settings:
+  dupl:
+    threshold: 100
+  funlen:
+    lines: 100
+    statements: 60
+  depguard:
+    list-type: blacklist
+    packages:
+      - golang.org/x/net/context
+
+issues:
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gomnd
+    # https://github.com/go-critic/go-critic/issues/926
+    - linters:
+        - gocritic
+      text: "unnecessaryDefer:"
