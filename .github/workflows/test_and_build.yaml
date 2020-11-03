@@ -74,7 +74,9 @@ jobs:
         run: |
           export GO111MODULE=on
           GOOS=windows GOARCH=amd64 go build -o bin/crontimer-windows-amd64.exe ./cmd/crontimer
-          GOOS=linux   GOARCH=amd64 go build -o bin/cromtimer-linux-amd64 ./cmd/crontimer
+          GOOS=linux GOARCH=amd64 go build -o bin/cromtimer-linux-amd64 ./cmd/crontimer
+          GOOS=darwin GOARCH=amd64 go build -o bin/cromtimer-darwin-amd64 ./cmd/crontimer
+
       - name: upload artifacts
         uses: actions/upload-artifact@master
         with:
