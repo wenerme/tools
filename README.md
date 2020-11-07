@@ -9,6 +9,26 @@ Build  | Coverage
 ## Alpine apk toolset
 * `pkg/apk`
 
+## libmagic
+linmagic Golang wrapper
+
+```go
+package main
+import (
+	"fmt"
+	"os"
+	"github.com/wenerme/tools/pkg/libmagic"
+)
+
+func main() {
+    mgc := libmagic.Open(libmagic.MAGIC_NONE)
+    defer mgc.Close()
+    fmt.Printf("file: %s", mgc.File(os.Args[0]))
+    mgc.SetFlags(libmagic.MAGIC_MIME | libmagic.MAGIC_MIME_ENCODING)
+    fmt.Printf("file: %s", mgc.File(os.Args[0]))
+}
+```
+
 ## crontimer
 Minimal WebCron
 
