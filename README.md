@@ -1,6 +1,11 @@
 # tools
 ⚙🔩🔧
 
+
+Build  | Coverage
+-------|----
+![test and build](https://github.com/wenerme/tools/workflows/test%20and%20build/badge.svg) | [![Coverage Status](https://coveralls.io/repos/github/wenerme/tools/badge.svg?branch=master)](https://coveralls.io/github/wenerme/tools?branch=master)
+
 ## Alpine apk toolset
 * `pkg/apk`
 
@@ -12,9 +17,9 @@ Minimal WebCron
 ```bash
 go get -u github.com/wenerme/tools/cmd/crontimer
 # list jobs
-crontimer -c doc/crontimer.yaml list
+crontimer -c cmd/crontimer/crontimer.yaml list
 # run cron
-crontimer -c doc/crontimer.yaml
+crontimer -c cmd/crontimer/crontimer.yaml
 ```
 
 ```yaml

@@ -1,9 +1,14 @@
 package apk
 
 import (
+	"bytes"
+	"crypto/md5"  // nolint: gosec
+	"crypto/sha1" // nolint: gosec
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"hash"
+	"io"
 )
 
 type ChecksumType int
@@ -28,7 +33,49 @@ func (s ChecksumType) String() string {
 
 type Checksum struct {
 	Type ChecksumType
-	Data []byte
+	Sum  []byte
+}
+
+func (s Checksum) CheckBytes(b []byte) error {
+	var r []byte
+	switch s.Type {
+	case ChecksumNone:
+		return nil
+	case ChecksumSha1:
+		v := sha1.Sum(b) // nolint: gosec
+		r = v[:]
+	case ChecksumMd5:
+		v := md5.Sum(b) // nolint: gosec
+		r = v[:]
+	default:
+		return fmt.Errorf("unexpected checksum type %q", s.Type)
+	}
+	if !bytes.Equal(s.Sum, r) {
+		return fmt.Errorf("%s checksum not match", s.Type)
+	}
+	return nil
+}
+func (s Checksum) Check(r io.Reader) error {
+	var h hash.Hash
+	switch s.Type {
+	case ChecksumNone:
+		return nil
+	case ChecksumSha1:
+		h = sha1.New() // nolint: gosec
+	case ChecksumMd5:
+		h = md5.New() // nolint: gosec
+	default:
+		return fmt.Errorf("unexpected checksum type %q", s.Type)
+	}
+
+	if _, err := io.Copy(h, r); err != nil {
+		return err
+	}
+	b := h.Sum(nil)
+	if !bytes.Equal(s.Sum, b) {
+		return fmt.Errorf("%s checksum not match", s.Type)
+	}
+	return nil
 }
 
 func ParseChecksum(s string) (Checksum, error) {
@@ -45,9 +92,9 @@ func ParseChecksum(s string) (Checksum, error) {
 	var err error
 	switch enc {
 	case 'X':
-		c.Data, err = hex.DecodeString(s[2:])
+		c.Sum, err = hex.DecodeString(s[2:])
 	case 'Q':
-		c.Data, err = base64.StdEncoding.DecodeString(s[2:])
+		c.Sum, err = base64.StdEncoding.DecodeString(s[2:])
 	}
 	if err != nil {
 		return c, err

@@ -1,8 +1,14 @@
 package apk
 
 import (
+	"archive/tar"
+	"context"
+	"encoding/hex"
+	"io"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type PackageInfo struct {
@@ -75,6 +81,79 @@ func ParsePackageInfo(info map[string][]string) (PackageInfo, error) {
 	}
 
 	return pkg, errorSlice(er)
+}
+
+type ParsePackageArchiveOptions struct {
+	PackageInfo *PackageInfo
+	Checksum    bool
+	Processors  []ArchiveEntryProcessor
+	Context     context.Context
+	Ungzipped   bool
+}
+
+// io_archive.c
+func ParsePackageArchive(r io.Reader, o *ParsePackageArchiveOptions) error {
+	if o == nil {
+		o = &ParsePackageArchiveOptions{}
+	}
+	var p []ArchiveEntryProcessor
+	if o.PackageInfo != nil {
+		p = append(p, ExtractPackageInfo(o.PackageInfo))
+	}
+	if o.Checksum {
+		p = append(p, ArchiveEntryChecksum)
+	}
+	if len(o.Processors) > 0 {
+		p = append(p, o.Processors...)
+	}
+	return ProcessArchive(r, &ProcessArchiveOptions{
+		Ungzipped:  o.Ungzipped,
+		Processors: p,
+		Context:    o.Context,
+	})
+}
+
+func ExtractPackageInfo(info *PackageInfo) ArchiveEntryProcessor {
+	return func(ctx context.Context, h *tar.Header, r io.Reader) error {
+		if h.Typeflag == tar.TypeReg && h.Name == ".PKGINFO" && info != nil {
+			s, err := readAllString(r)
+			if err != nil {
+				return errors.Wrap(err, "read .PKGINFO")
+			}
+			*info, err = ParsePackageInfo(ParsePackageInfoMap(s))
+			if err != nil {
+				return errors.Wrap(err, "parse .PKGINFO")
+			}
+		}
+		return nil
+	}
+}
+func ArchiveEntryChecksum(_ context.Context, h *tar.Header, r io.Reader) error {
+	ck := Checksum{
+		Type: ChecksumNone,
+	}
+	var err error
+
+	if v, ok := h.PAXRecords["APK-TOOLS.checksum.SHA1"]; ok {
+		ck.Type = ChecksumSha1
+		ck.Sum, err = hex.DecodeString(v)
+		if err != nil {
+			return errors.Wrapf(err, "decode sha1 checksum %q", h.Name)
+		}
+	}
+	if v, ok := h.PAXRecords["APK-TOOLS.checksum.MD5"]; ok {
+		ck.Type = ChecksumSha1
+		ck.Sum, err = hex.DecodeString(v)
+		if err != nil {
+			return errors.Wrapf(err, "decode sha1 checksum %q", h.Name)
+		}
+	}
+	if ck.Type != ChecksumNone {
+		if err := ck.Check(r); err != nil {
+			return errors.Wrapf(err, "%q checksum failed", h.Name)
+		}
+	}
+	return nil
 }
 
 type mapSlice map[string][]string
