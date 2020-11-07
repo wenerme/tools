@@ -17,6 +17,7 @@ import (
 	"unsafe"
 )
 
+// explain https://man7.org/linux/man-pages/man3/libmagic.3.html
 // nolint: golint
 const (
 	MAGIC_NONE              = C.MAGIC_NONE

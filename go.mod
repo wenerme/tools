@@ -6,6 +6,8 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgtype v1.5.0
+	github.com/json-iterator/go v1.1.10
+	github.com/magiconair/properties v1.8.0
 	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.7.0
@@ -16,6 +18,5 @@ require (
 	github.com/wenerme/letsgo v0.0.0-20200921165205-ae08ad9ea1e0
 	gopkg.in/yaml.v2 v2.3.0
 	gorm.io/driver/postgres v1.0.5
-	gorm.io/driver/sqlite v1.1.3
 	gorm.io/gorm v1.20.5
 )

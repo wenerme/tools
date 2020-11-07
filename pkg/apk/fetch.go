@@ -29,7 +29,15 @@ func fetch(s string) (io.ReadCloser, error) {
 }
 
 func fetchJoin(args ...string) string {
-	return strings.Join(args, "/")
+	s := ""
+	for _, v := range args {
+		if s == "" {
+			s = v
+			continue
+		}
+		s = strings.TrimRight(s, "/") + "/" + strings.TrimLeft(v, "/")
+	}
+	return s
 }
 
 func readAllString(r io.Reader) (string, error) {
