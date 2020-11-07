@@ -30,9 +30,9 @@ func (m Mirror) LastUpdated() (time.Time, error) {
 	return time.Unix(i, 0), nil
 }
 
-func (m Mirror) Repo(ver string, repo string, arch string) Repo {
+func (m Mirror) Repo(branch string, repo string, arch string) Repo {
 	return Repo{
-		Location: fetchJoin(string(m), ver, repo),
+		Location: fetchJoin(string(m), branch, repo),
 		Arch:     arch,
 	}
 }

@@ -36,6 +36,14 @@ func TestMirror(t *testing.T) {
 	assert.NotNil(t, idx[0])
 	assert.NotEmpty(t, idx[0].Name)
 
+	for _, r := range idx {
+		assert.NotEmpty(t, r.Arch)
+		if !assert.NotEmpty(t, r.Name) {
+			spew.Dump(r)
+		}
+		assert.NotEmpty(t, r.Version)
+	}
+
 	reader, err := r.Download(idx[0])
 	assert.NoError(t, err)
 	defer reader.Close()

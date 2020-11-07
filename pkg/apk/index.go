@@ -16,12 +16,14 @@ func ParseApkIndexList(s string) []map[string]string {
 		for _, v := range strings.Split(p, "\n") {
 			i := strings.IndexByte(v, ':')
 			if i < 0 {
-				m[v] = ""
+				continue
 			} else {
 				m[v[:i]] = v[i+1:]
 			}
 		}
-
+		if len(m) == 0 {
+			continue
+		}
 		idx = append(idx, m)
 	}
 	return idx

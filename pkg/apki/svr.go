@@ -25,13 +25,14 @@ func NewServer(conf *IndexerConf) (*IndexerServer, error) {
 	if conf.Web.Addr == "" {
 		conf.Web.Addr = "0.0.0.0:8080"
 	}
+	logrus.Debug("connecting db")
 	db, err := connectDatabase(conf.Database)
 	if err != nil {
 		return nil, err
 	}
 	if conf.Database.AutoMigrate {
 		logrus.Info("auto migrate")
-		if err := db.AutoMigrate(&Mirror{}); err != nil {
+		if err := db.AutoMigrate(&Mirror{}, &PackageIndex{}, &Setting{}); err != nil {
 			return nil, err
 		}
 	}
@@ -47,13 +48,28 @@ func (s *IndexerServer) Serve() error {
 	r.Use(recoveryMiddleware)
 	r.Use(loggingMiddleware)
 
-	pre := r.PathPrefix("/api/service/me.wener.apkindexer/IndexerService").Methods("POST")
-	pre.Path("/RefreshMirror").HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+	pre := r.PathPrefix("/api/service/me.wener.apkindexer/IndexerService").Methods("POST").Subrouter()
+	pre.HandleFunc("/RefreshMirror", func(rw http.ResponseWriter, r *http.Request) {
 		if err := s.RefreshMirror(); err != nil {
 			panic(err)
 		}
 		rw.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(rw).Encode(map[string]interface{}{"message": "OK"})
+	})
+	pre.HandleFunc("/RefreshIndex", func(rw http.ResponseWriter, r *http.Request) {
+		if err := s.RefreshIndex(); err != nil {
+			panic(err)
+		}
+		rw.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(rw).Encode(map[string]interface{}{"message": "OK"})
+	})
+	pre.HandleFunc("/IndexCoordinates", func(rw http.ResponseWriter, r *http.Request) {
+		if v, err := s.IndexCoordinates(); err != nil {
+			panic(err)
+		} else {
+			rw.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(rw).Encode(v)
+		}
 	})
 
 	logrus.Infof("serve %s", s.conf.Web.Addr)

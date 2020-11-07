@@ -22,7 +22,9 @@ jobs:
     strategy:
       matrix:
         go-version: [ 1.14.x, 1.15.x ]
-        platform: [ ubuntu-latest, macos-latest, windows-latest ]
+        # platform: [ ubuntu-latest, macos-latest, windows-latest ]
+        # cgo need extra dependencies
+        platform: [ ubuntu-latest ]
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Install Go
@@ -62,7 +64,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: [lint, test]
+    needs: [ lint, test ]
     steps:
       - name: Install Go
         uses: actions/setup-go@v1
@@ -76,6 +78,9 @@ jobs:
           GOOS=windows GOARCH=amd64 go build -o bin/crontimer-windows-amd64.exe ./cmd/crontimer
           GOOS=linux GOARCH=amd64 go build -o bin/cromtimer-linux-amd64 ./cmd/crontimer
           GOOS=darwin GOARCH=amd64 go build -o bin/cromtimer-darwin-amd64 ./cmd/crontimer
+
+          GOOS=linux GOARCH=amd64 go build -o bin/apkindexer-linux-amd64 ./cmd/apkindexer
+
 
       - name: upload artifacts
         uses: actions/upload-artifact@master

@@ -6,8 +6,8 @@ Build  | Coverage
 -------|----
 ![test and build](https://github.com/wenerme/tools/workflows/test%20and%20build/badge.svg) | [![Coverage Status](https://coveralls.io/repos/github/wenerme/tools/badge.svg?branch=master)](https://coveralls.io/github/wenerme/tools?branch=master)
 
-## Alpine apk toolset
-* `pkg/apk`
+## AlpineLinux package indexer
+* `pkg/apki`
 
 ## libmagic
 linmagic Golang wrapper
