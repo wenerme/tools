@@ -13,9 +13,10 @@ import (
 // https://mirrors.alpinelinux.org/mirrors.json
 type Mirror struct {
 	gorm.Model
-	Name                string `gorm:"unique"`
+	Name                string
 	Location            string
 	Bandwidth           string
+	Host                string `gorm:"unique"`
 	URL                 string
 	URLs                pgtype.TextArray `gorm:"type:text[]"`
 	LastUpdated         time.Time

@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // indexRefreshCmd represents the indexRefresh command
@@ -25,11 +26,12 @@ var indexRefreshCmd = &cobra.Command{
 	Short: "Refresh index",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		viper.Set("Database.AutoMigrate", true)
 		idx, err := buildIndexer()
 		if err != nil {
 			return err
 		}
-		return idx.RefreshIndex()
+		return idx.RefreshAllIndex()
 	},
 }
 

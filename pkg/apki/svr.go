@@ -19,6 +19,7 @@ type IndexerConf struct {
 	Web      struct {
 		Addr string
 	}
+	PrimaryMirror string
 }
 
 func NewServer(conf *IndexerConf) (*IndexerServer, error) {
@@ -49,15 +50,15 @@ func (s *IndexerServer) Serve() error {
 	r.Use(loggingMiddleware)
 
 	pre := r.PathPrefix("/api/service/me.wener.apkindexer/IndexerService").Methods("POST").Subrouter()
-	pre.HandleFunc("/RefreshMirror", func(rw http.ResponseWriter, r *http.Request) {
-		if err := s.RefreshMirror(); err != nil {
+	pre.HandleFunc("/RefreshAllMirror", func(rw http.ResponseWriter, r *http.Request) {
+		if err := s.RefreshAllMirror(); err != nil {
 			panic(err)
 		}
 		rw.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(rw).Encode(map[string]interface{}{"message": "OK"})
 	})
-	pre.HandleFunc("/RefreshIndex", func(rw http.ResponseWriter, r *http.Request) {
-		if err := s.RefreshIndex(); err != nil {
+	pre.HandleFunc("/RefreshAllIndex", func(rw http.ResponseWriter, r *http.Request) {
+		if err := s.RefreshAllIndex(); err != nil {
 			panic(err)
 		}
 		rw.Header().Set("Content-Type", "application/json")

@@ -15,8 +15,16 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (s *IndexerServer) RefreshRepoIndex(c IndexCoordinate) error {
-	mir := s.getMirror()
+func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
+	mir := apk.Mirror(s.conf.PrimaryMirror)
+	if mir == "" {
+		var v string
+		_, _ = s.getSetting("index.primary-mirror", &v)
+		mir = apk.Mirror(v)
+	}
+	if mir == "" {
+		mir = s.getFastestMirror()
+	}
 	if mir == "" {
 		return errors.New("no mirror")
 	}
@@ -87,7 +95,7 @@ func (s *IndexerServer) RefreshRepoIndex(c IndexCoordinate) error {
 	_, _ = s.setSetting(descKey, lastDesc)
 	return nil
 }
-func (s *IndexerServer) RefreshIndex() error {
+func (s *IndexerServer) RefreshAllIndex() error {
 	all, err := s.IndexCoordinates()
 	if err != nil {
 		return err
@@ -112,7 +120,7 @@ func (s *IndexerServer) RefreshIndex() error {
 			defer func() {
 				<-limit
 			}()
-			err := s.RefreshRepoIndex(c)
+			err := s.RefreshIndex(c)
 			if err != nil {
 				logrus.WithError(err).WithField("repo", c).Warnf("refresh repo failed")
 			}
@@ -122,7 +130,7 @@ func (s *IndexerServer) RefreshIndex() error {
 	return nil
 }
 
-func (s *IndexerServer) getMirror() apk.Mirror {
+func (s *IndexerServer) getFastestMirror() apk.Mirror {
 	v := Mirror{}
 	s.DB.Order("last_refresh_duration asc").Where("last_error = '' and url <> ''").First(&v)
 	return apk.Mirror(v.URL)
