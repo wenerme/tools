@@ -79,7 +79,7 @@ func (s *IndexerServer) RefreshRepoIndex(c IndexCoordinate) error {
 			// log.WithError(err).WithField("key", row.Key).Infof("save index failed")
 			return errors.Wrapf(err, "save index failed %q", row.Key)
 		}
-		if i%200 == 0 {
+		if i%500 == 0 {
 			log.Infof("[%v/%v] updating", i, len(idx))
 		}
 	}
@@ -102,7 +102,7 @@ func (s *IndexerServer) RefreshIndex() error {
 	}
 	w := &sync.WaitGroup{}
 	w.Add(len(rest))
-	limit := make(chan struct{}, 10)
+	limit := make(chan struct{}, 20)
 
 	for _, v := range rest {
 		c := v

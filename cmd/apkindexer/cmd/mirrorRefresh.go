@@ -19,20 +19,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// dbMirrorLoadCmd represents the mirrorLoad command
-var dbMirrorLoadCmd = &cobra.Command{
-	Use:   "load",
-	Short: "Load mirror",
+// mirrorRefreshCmd represents the mirrorRefresh command
+var mirrorRefreshCmd = &cobra.Command{
+	Use:   "refresh",
+	Short: "Update mirrors",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		idx, err := buildIndexer()
 		if err != nil {
 			return err
 		}
-		return idx.LoadMirror()
+		return idx.RefreshMirror()
 	},
 }
 
 func init() {
-	dbMirrorCmd.AddCommand(dbMirrorLoadCmd)
+	mirrorCmd.AddCommand(mirrorRefreshCmd)
 }
