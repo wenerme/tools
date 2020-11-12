@@ -57,7 +57,7 @@ func (s *IndexerServer) ServeWeb() error {
 	c.Filter(c.OPTIONSFilter)
 
 	r := mux.NewRouter()
-	r.Handle("/api", http.StripPrefix("/api", c))
+	r.PathPrefix("/api").Handler(http.StripPrefix("/api", c))
 	r.HandleFunc("/ping", func(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(http.StatusOK)
 		_, _ = rw.Write([]byte("PONG"))
