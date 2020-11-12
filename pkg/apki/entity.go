@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jackc/pgtype"
+	"github.com/lib/pq"
+
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -18,7 +19,7 @@ type Mirror struct {
 	Bandwidth           string
 	Host                string `gorm:"unique"`
 	URL                 string
-	URLs                pgtype.TextArray `gorm:"type:text[]"`
+	URLs                pq.StringArray `gorm:"type:text[]"`
 	LastUpdated         time.Time
 	LastError           string
 	LastRefreshDuration time.Duration
@@ -26,25 +27,25 @@ type Mirror struct {
 
 type PackageIndex struct {
 	gorm.Model
-	Branch      string `grom:"index"`
-	Repo        string `grom:"index"`
-	Arch        string `grom:"index"`
-	Name        string `grom:"index"`
+	Branch      string `gorm:"index"`
+	Repo        string `gorm:"index"`
+	Arch        string `gorm:"index"`
+	Name        string `gorm:"index"`
 	Version     string
 	Size        int
 	InstallSize int
 	Description string
 	URL         string
-	License     string `grom:"index"`
-	Maintainer  string `grom:"index"`
-	Origin      string `grom:"index"`
+	License     string `gorm:"index"`
+	Maintainer  string
+	Origin      string `gorm:"index"`
 	BuildTime   time.Time
 	Commit      string
-	Key         string           `gorm:"uniqueIndex"` // $BRANCH/$REPO/$ARCH/$NAME
-	Path        string           `gorm:"uniqueIndex"`
-	Depends     pgtype.TextArray `gorm:"type:text[]"`
-	Provides    pgtype.TextArray `gorm:"type:text[]"`
-	InstallIf   pgtype.TextArray `gorm:"type:text[]"`
+	Key         string         `gorm:"uniqueIndex"` // $BRANCH/$REPO/$ARCH/$NAME
+	Path        string         `gorm:"uniqueIndex"`
+	Depends     pq.StringArray `gorm:"type:text[]"`
+	Provides    pq.StringArray `gorm:"type:text[]"`
+	InstallIf   pq.StringArray `gorm:"type:text[]"`
 }
 
 func (p *PackageIndex) BeforeSave(tx *gorm.DB) (err error) {

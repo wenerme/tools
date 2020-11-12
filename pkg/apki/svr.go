@@ -44,12 +44,12 @@ func NewServer(conf *IndexerConf) (*IndexerServer, error) {
 	return svr, nil
 }
 
-func (s *IndexerServer) Serve() error {
+func (s *IndexerServer) ServeService() error {
 	r := mux.NewRouter()
 	r.Use(recoveryMiddleware)
 	r.Use(loggingMiddleware)
 
-	pre := r.PathPrefix("/api/service/me.wener.apkindexer/IndexerService").Methods("POST").Subrouter()
+	pre := r.PathPrefix("/api/service/default/me.wener.apkindexer/IndexerService/v1").Methods("POST").Subrouter()
 	pre.HandleFunc("/RefreshAllMirror", func(rw http.ResponseWriter, r *http.Request) {
 		if err := s.RefreshAllMirror(); err != nil {
 			panic(err)

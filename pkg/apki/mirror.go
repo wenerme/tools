@@ -32,8 +32,7 @@ func (s *IndexerServer) refreshMirror(mir *Mirror) error {
 
 	start := time.Now()
 	if mir.URL == "" {
-		var urls []string
-		_ = mir.URLs.AssignTo(&urls)
+		urls := mir.URLs
 		var a, b string
 		for _, u := range urls {
 			if strings.HasPrefix(u, "https:") {

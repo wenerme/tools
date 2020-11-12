@@ -19,20 +19,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// serveCmd represents the serve command
-var serveCmd = &cobra.Command{
-	Use:   "serve",
+var serviceCmd = &cobra.Command{
+	Use:   "service",
 	Short: "AlpineLinux Package Indexer",
-	Long:  `Provide RESTful APIs`,
+	Long:  `Provide Service APIs`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		idx, err := buildIndexer()
 		if err != nil {
 			return err
 		}
-		return idx.ServeWeb()
+		return idx.ServeService()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(serveCmd)
+	rootCmd.AddCommand(serviceCmd)
 }

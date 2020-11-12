@@ -4,10 +4,12 @@ go 1.15
 
 require (
 	github.com/davecgh/go-spew v1.1.1
+	github.com/emicklei/go-restful/v3 v3.4.0
 	github.com/gorilla/mux v1.8.0
-	github.com/jackc/pgtype v1.5.0
 	github.com/json-iterator/go v1.1.10
+	github.com/lib/pq v1.3.0
 	github.com/magiconair/properties v1.8.0
+	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.7.0

@@ -67,10 +67,11 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 			Origin:      v.Origin,
 			BuildTime:   v.BuildTime,
 			Commit:      v.Commit,
+			Depends:     v.Depends,
+			Provides:    v.Provides,
+			InstallIf:   v.InstallIf,
 		}
-		_ = row.Depends.Set(v.Depends)
-		_ = row.Provides.Set(v.Provides)
-		_ = row.InstallIf.Set(v.InstallIf)
+
 		err := db.Clauses(
 			clause.OnConflict{
 				Columns:   []clause.Column{{Name: "path"}},

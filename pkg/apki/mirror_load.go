@@ -42,8 +42,8 @@ func (s *IndexerServer) LoadMirror() error {
 			Name:      v.Name,
 			Location:  v.Location,
 			Bandwidth: v.Bandwidth,
+			URLs:      v.URLs,
 		}
-		_ = m.URLs.Set(v.URLs)
 
 		if err := s.DB.FirstOrCreate(&m, "name = ?", v.Name).Error; err != nil {
 			return errors.Wrapf(err, "create %q", v.Name)
