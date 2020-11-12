@@ -16,10 +16,15 @@ limitations under the License.
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"os"
+	"reflect"
+	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/wenerme/tools/pkg/apki"
+	"gopkg.in/yaml.v2"
 
 	"github.com/spf13/viper"
 )
@@ -61,23 +66,35 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+	v := viper.GetViper()
+
+	{
+		// discover env conf
+		// https://github.com/spf13/viper/issues/188#issuecomment-413368673
+		b, _ := yaml.Marshal(apki.IndexerConf{})
+		defaultConfig := bytes.NewReader(b)
+		v.SetConfigType("yaml")
+		_ = v.MergeConfig(defaultConfig)
+	}
+
 	if cfgFile != "" {
 		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
+		v.SetConfigFile(cfgFile)
 	} else {
 		pwd, err := os.Getwd()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		viper.AddConfigPath(pwd)
-		viper.SetConfigName("apkindexer")
+		v.AddConfigPath(pwd)
+		v.SetConfigName("apkindexer")
 	}
+	v.AutomaticEnv()
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
+	if err := v.MergeInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	} else if reflect.TypeOf(viper.ConfigFileNotFoundError{}) != reflect.TypeOf(err) {
+		fmt.Println("ReadInConfig failed:", err.Error())
 	}
 }
