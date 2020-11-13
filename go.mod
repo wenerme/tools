@@ -10,6 +10,7 @@ require (
 	github.com/lib/pq v1.3.0
 	github.com/magiconair/properties v1.8.0
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.7.0
