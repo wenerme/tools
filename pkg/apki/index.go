@@ -38,7 +38,7 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 		return errors.Wrapf(err, "get index %q", r)
 	}
 
-	descKey := fmt.Sprintf("index.repo.%s.last-desc", c.String())
+	descKey := fmt.Sprintf("index.repo.index.%s.last-desc", c.String())
 	var lastDesc string
 	_, _ = s.getSetting(descKey, &lastDesc)
 	if lastDesc != "" && lastDesc == idxAr.Description {
@@ -82,6 +82,7 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 				DoUpdates: clause.AssignmentColumns([]string{
 					"updated_at",
 					"version", "size", "install_size", "description", "url", "license", "maintainer", "origin", "build_time", "commit",
+					"maintainer_name", "maintainer_email",
 				}),
 			}).Create(&row).Error
 		if err != nil {

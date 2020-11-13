@@ -3,6 +3,7 @@ package apki
 import (
 	"errors"
 	"fmt"
+	"net/mail"
 	"time"
 
 	"github.com/lib/pq"
@@ -41,11 +42,15 @@ type PackageIndex struct {
 	Origin      string `gorm:"index"`
 	BuildTime   time.Time
 	Commit      string
-	Key         string         `gorm:"uniqueIndex"` // $BRANCH/$REPO/$ARCH/$NAME
-	Path        string         `gorm:"uniqueIndex"`
 	Depends     pq.StringArray `gorm:"type:text[]"`
 	Provides    pq.StringArray `gorm:"type:text[]"`
 	InstallIf   pq.StringArray `gorm:"type:text[]"`
+
+	// derived
+	MaintainerName  string
+	MaintainerEmail string
+	Key             string `gorm:"uniqueIndex"` // $BRANCH/$REPO/$ARCH/$NAME
+	Path            string `gorm:"uniqueIndex"`
 }
 
 func (p *PackageIndex) BeforeSave(tx *gorm.DB) (err error) {
@@ -54,6 +59,13 @@ func (p *PackageIndex) BeforeSave(tx *gorm.DB) (err error) {
 	}
 	p.Key = fmt.Sprintf("%v/%v/%v/%v", p.Branch, p.Repo, p.Arch, p.Name)
 	p.Path = fmt.Sprintf("%v-%v.apk", p.Key, p.Version)
+	if p.Maintainer != "" {
+		addr, err := mail.ParseAddress(p.Maintainer)
+		if err == nil {
+			p.MaintainerName = addr.Name
+			p.MaintainerEmail = addr.Address
+		}
+	}
 	return nil
 }
 
