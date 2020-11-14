@@ -26,7 +26,7 @@ func PhoneData() (*teleattr.PhoneData, error) {
 	if err != nil {
 		return nil, err
 	}
-	instance, err = teleattr.LoadPhoneDataBytes(b)
+	instance, err = teleattr.LoadBytes(b)
 	return instance, err
 }
 

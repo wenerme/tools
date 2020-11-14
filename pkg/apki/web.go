@@ -27,6 +27,7 @@ func (s *IndexerServer) ServeWeb() error {
 	}
 	c.Filter(cors.Filter)
 	c.Filter(c.OPTIONSFilter)
+	restful.RegisterEntityAccessor(restful.MIME_JSON, entityJSONAccess{})
 
 	r := mux.NewRouter()
 	r.Use(recoveryMiddleware)
@@ -41,6 +42,7 @@ func (s *IndexerServer) ServeWeb() error {
 	return http.ListenAndServe(s.conf.Web.Addr, r)
 }
 
+// default to jsoniter
 type entityJSONAccess struct {
 	ContentType string
 }
@@ -61,6 +63,7 @@ func (e entityJSONAccess) writeJSON(resp *restful.Response, status int, contentT
 		// do not write a nil representation
 		return nil
 	}
+	// NOTE can not check is pretty
 	if true {
 		// pretty output must be created and written explicitly
 		output, err := jsoniter.MarshalIndent(v, "", " ")

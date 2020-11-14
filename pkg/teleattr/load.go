@@ -7,15 +7,15 @@ import (
 	"strings"
 )
 
-func LoadPhoneDataFile(f string) (*PhoneData, error) {
+func LoadFile(f string) (*PhoneData, error) {
 	b, err := ioutil.ReadFile(f)
 	if err != nil {
 		return nil, err
 	}
-	return LoadPhoneDataBytes(b)
+	return LoadBytes(b)
 }
 
-func LoadPhoneDataBytes(b []byte) (*PhoneData, error) {
+func LoadBytes(b []byte) (*PhoneData, error) {
 	/*
 	   | 4 bytes |                     <- phone.dat 版本号（如：1701即17年1月份）
 	   ------------

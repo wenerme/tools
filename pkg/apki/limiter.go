@@ -81,7 +81,7 @@ func (c *ConcurrencyLimiter) ExecuteWithTicket(job func(ticket int)) int {
 //            un-desired race conditions
 func (c *ConcurrencyLimiter) Wait() {
 	for i := 0; i < c.limit; i++ {
-		_ = <-c.tickets
+		<-c.tickets
 	}
 }
 

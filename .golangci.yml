@@ -1,10 +1,11 @@
 run:
   skip-files:
     - "rice-box.go$"
+    - "ignored[^.]*.go"
   skip-dirs-use-default: true
 
 linters:
-  disable-all: true
+  # disable-all: true
   enable:
     - bodyclose
     - deadcode

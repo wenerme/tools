@@ -10,7 +10,7 @@ import (
 )
 
 func TestLoad(t *testing.T) {
-	d, err := teleattr.LoadPhoneDataFile("./testdata/phone.dat")
+	d, err := teleattr.LoadFile("./testdata/phone.dat")
 	if !assert.NoError(t, err) {
 		return
 	}
