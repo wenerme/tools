@@ -49,8 +49,8 @@ type PackageIndex struct {
 	// derived
 	MaintainerName  string
 	MaintainerEmail string
-	Key             string `gorm:"uniqueIndex"` // $BRANCH/$REPO/$ARCH/$NAME
 	Path            string `gorm:"uniqueIndex"`
+	Key             string `gorm:"uniqueIndex"` // $BRANCH/$REPO/$ARCH/$NAME
 }
 
 func (p *PackageIndex) BeforeSave(tx *gorm.DB) (err error) {

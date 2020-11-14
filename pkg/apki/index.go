@@ -42,7 +42,7 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 	var lastDesc string
 	_, _ = s.getSetting(descKey, &lastDesc)
 	if lastDesc != "" && lastDesc == idxAr.Description {
-		log.Info("skip unchanged index")
+		log.WithField("last", lastDesc).Info("skip unchanged index")
 		return nil
 	}
 	lastDesc = idxAr.Description
@@ -51,6 +51,35 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 
 	log.WithField("count", len(idx)).Infof("update index %q", r)
 	db := s.DB
+	updated := int64(0)
+	var batch []PackageIndex
+	upsert := func() error {
+		if len(batch) == 0 {
+			return nil
+		}
+
+		r := db.Clauses(
+			clause.OnConflict{
+				Columns:   []clause.Column{{Name: "path"}},
+				DoNothing: true,
+			},
+			clause.OnConflict{
+				Columns: []clause.Column{{Name: "key"}},
+				DoUpdates: clause.AssignmentColumns([]string{
+					"updated_at",
+					"version", "size", "install_size", "description", "url", "license", "maintainer", "origin", "build_time", "commit",
+					"maintainer_name", "maintainer_email",
+				}),
+			},
+		).Create(&batch)
+		updated += r.RowsAffected
+		err := r.Error
+		if err != nil {
+			return errors.Wrapf(err, "save index failed")
+		}
+		return nil
+	}
+
 	for i, v := range idx {
 		row := PackageIndex{
 			Branch:      c.Branch,
@@ -71,29 +100,23 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 			Provides:    v.Provides,
 			InstallIf:   v.InstallIf,
 		}
-
-		err := db.Clauses(
-			clause.OnConflict{
-				Columns:   []clause.Column{{Name: "path"}},
-				DoNothing: true,
-			},
-			clause.OnConflict{
-				Columns: []clause.Column{{Name: "key"}},
-				DoUpdates: clause.AssignmentColumns([]string{
-					"updated_at",
-					"version", "size", "install_size", "description", "url", "license", "maintainer", "origin", "build_time", "commit",
-					"maintainer_name", "maintainer_email",
-				}),
-			}).Create(&row).Error
-		if err != nil {
-			// log.WithError(err).WithField("key", row.Key).Infof("save index failed")
-			return errors.Wrapf(err, "save index failed %q", row.Key)
+		batch = append(batch, row)
+		if len(batch) < 50 {
+			continue
 		}
-		if i%500 == 0 {
-			log.Infof("[%v/%v] updating", i, len(idx))
+		if err := upsert(); err != nil {
+			return err
+		}
+		batch = nil
+		if (i+1)%500 == 0 {
+			log.Infof("[%v/%v] updated %v", i+1, len(idx), updated)
 		}
 	}
-	log.Info("refresh done")
+	if err := upsert(); err != nil {
+		return err
+	}
+
+	log.WithField("updated", updated).WithField("total", len(idx)).Info("refresh completed")
 	_, _ = s.setSetting(descKey, lastDesc)
 	return nil
 }

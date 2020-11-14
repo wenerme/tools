@@ -18,7 +18,12 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/wenerme/tools/pkg/apki"
 )
+
+var indexRefreshOpts = struct {
+	coordinate apki.IndexCoordinate
+}{}
 
 // indexRefreshCmd represents the indexRefresh command
 var indexRefreshCmd = &cobra.Command{
@@ -31,10 +36,17 @@ var indexRefreshCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		coord := indexRefreshOpts.coordinate
+		if coord.Arch != "" && coord.Branch != "" && coord.Repo != "" {
+			return idx.RefreshIndex(coord)
+		}
 		return idx.RefreshAllIndex()
 	},
 }
 
 func init() {
 	indexCmd.AddCommand(indexRefreshCmd)
+	indexRefreshCmd.Flags().StringVar(&indexRefreshOpts.coordinate.Branch, "branch", "", "Branch")
+	indexRefreshCmd.Flags().StringVar(&indexRefreshOpts.coordinate.Arch, "arch", "", "Arch")
+	indexRefreshCmd.Flags().StringVar(&indexRefreshOpts.coordinate.Repo, "repo", "", "Repository")
 }
