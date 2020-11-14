@@ -3,6 +3,7 @@ module github.com/wenerme/tools
 go 1.15
 
 require (
+	github.com/GeertJohan/go.rice v1.0.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/emicklei/go-restful/v3 v3.4.0
 	github.com/gorilla/mux v1.8.0

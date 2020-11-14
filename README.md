@@ -6,8 +6,14 @@ Build  | Coverage
 -------|----
 ![test and build](https://github.com/wenerme/tools/workflows/test%20and%20build/badge.svg) | [![Coverage Status](https://coveralls.io/repos/github/wenerme/tools/badge.svg?branch=master)](https://coveralls.io/github/wenerme/tools?branch=master)
 
-## AlpineLinux package indexer
+> 💡
+>
+> Pre-build binaries can download from Actions artifacts
+
+## apki
+* AlpineLinux package indexer
 * `pkg/apki`
+* [alpine.ink](https://alpine.ink)
 
 ## libmagic
 linmagic Golang wrapper
@@ -31,8 +37,6 @@ func main() {
 
 ## crontimer
 Minimal WebCron
-
-> Pre build binaries can download from Actions artifacts
 
 ```bash
 go get -u github.com/wenerme/tools/cmd/crontimer
@@ -68,6 +72,8 @@ log:
 * pkg/stardict
   * reader
 
+__Library Usage__
+
 ```go
 package main
 
@@ -84,5 +90,36 @@ func main() {
 	}
 	spew.Dump(dict.Info)
 	spew.Dump(dict.Search("你好"))
+}
+```
+
+## teleattr
+* Telephone Number Attribution
+* Data source [xluohome/phonedata](https://github.com/xluohome/phonedata)
+  * Source code under GPL-3.0
+
+__Library Usage__
+
+
+```go
+package main
+
+import (
+	"github.com/davecgh/go-spew/spew"
+	teleattrdata "github.com/wenerme/tools/pkg/teleattr/data"
+)
+
+func main() {
+	data, err := teleattrdata.PhoneData()
+	if err != nil {
+		panic(err)
+	}
+	idx, err := data.Search("13565961")
+	if err != nil {
+		panic(err)
+	}
+	spew.Dump(idx.Vendor, idx.Record)
+	// (teleattr.VendorType) 中国移动
+	// (*teleattr.Record)(0xc00013d9b8)(新疆|乌鲁木齐|830000|0991)
 }
 ```

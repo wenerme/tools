@@ -1,9 +1,7 @@
 run:
-  skip-dirs:
-    - vendor
-    - pkg/res
-    - pkg/icon
-    - pkg/web
+  skip-files:
+    - "rice-box.go$"
+  skip-dirs-use-default: true
 
 linters:
   disable-all: true
