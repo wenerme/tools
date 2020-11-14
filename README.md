@@ -63,3 +63,26 @@ log:
   level: debug
   file: log.log
 ```
+
+## stardict
+* pkg/stardict
+  * reader
+
+```go
+package main
+
+import (
+	"github.com/davecgh/go-spew/spew"
+	"github.com/wenerme/tools/pkg/stardict"
+)
+
+func main() {
+	// open dict archive or dir
+	dict, err := stardict.Open("./stardict-xhzd-2.4.2.tar.bz2")
+	if err != nil {
+		panic(err)
+	}
+	spew.Dump(dict.Info)
+	spew.Dump(dict.Search("你好"))
+}
+```

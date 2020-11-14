@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
@@ -15,7 +16,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
+func (s *IndexerServer) getMirror() (apk.Mirror, error) {
 	mir := apk.Mirror(s.conf.PrimaryMirror)
 	if mir == "" {
 		var v string
@@ -26,6 +27,13 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 		mir = s.getFastestMirror()
 	}
 	if mir == "" {
+		return "", errors.New("no mirror")
+	}
+	return mir, nil
+}
+func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
+	mir, err := s.getMirror()
+	if err != nil {
 		return errors.New("no mirror")
 	}
 
@@ -50,8 +58,9 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 	idx := idxAr.Index
 
 	log.WithField("count", len(idx)).Infof("update index %q", r)
+
+	updatedAt := time.Now()
 	db := s.DB
-	updated := int64(0)
 	var batch []PackageIndex
 	upsert := func() error {
 		if len(batch) == 0 {
@@ -60,10 +69,9 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 
 		r := db.Clauses(
 			clause.OnConflict{
-				Columns:   []clause.Column{{Name: "path"}},
-				DoNothing: true,
-			},
-			clause.OnConflict{
+				// Columns: []clause.Column{{Name: "path"}},
+				// DoNothing: true,
+
 				Columns: []clause.Column{{Name: "key"}},
 				DoUpdates: clause.AssignmentColumns([]string{
 					"updated_at",
@@ -72,7 +80,6 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 				}),
 			},
 		).Create(&batch)
-		updated += r.RowsAffected
 		err := r.Error
 		if err != nil {
 			return errors.Wrapf(err, "save index failed")
@@ -99,6 +106,9 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 			Depends:     v.Depends,
 			Provides:    v.Provides,
 			InstallIf:   v.InstallIf,
+			Model: gorm.Model{
+				UpdatedAt: updatedAt,
+			},
 		}
 		batch = append(batch, row)
 		if len(batch) < 50 {
@@ -109,13 +119,15 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 		}
 		batch = nil
 		if (i+1)%500 == 0 {
-			log.Infof("[%v/%v] updated %v", i+1, len(idx), updated)
+			log.Infof("[%v/%v] updating", i+1, len(idx))
 		}
 	}
 	if err := upsert(); err != nil {
 		return err
 	}
-
+	// always updated all :(
+	updated := int64(0)
+	db.Model(PackageIndex{}).Where("updated_at = ?", updatedAt).Count(&updated)
 	log.WithField("updated", updated).WithField("total", len(idx)).Info("refresh completed")
 	_, _ = s.setSetting(descKey, lastDesc)
 	return nil

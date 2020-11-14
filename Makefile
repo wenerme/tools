@@ -7,3 +7,13 @@ crontimer:
 
 apkindexer:
 	go build -o dist/crontimer ./cmd/apkindexer
+
+
+lint:
+	golangci-lint run
+
+git-hooks:
+	cp ./scripts/pre-commit .git/hooks/
+
+tidy:
+	go mod tidy
