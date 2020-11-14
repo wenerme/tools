@@ -95,6 +95,7 @@ func main() {
 
 ## teleattr
 * Telephone Number Attribution
+* 电话号码归属地查询
 * Data source [xluohome/phonedata](https://github.com/xluohome/phonedata)
   * Source code under GPL-3.0
 
@@ -121,5 +122,33 @@ func main() {
 	spew.Dump(idx.Vendor, idx.Record)
 	// (teleattr.VendorType) 中国移动
 	// (*teleattr.Record)(0xc00013d9b8)(新疆|乌鲁木齐|830000|0991)
+}
+```
+
+## scel
+* 搜狗 scel 词库
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/wenerme/tools/pkg/scel"
+)
+
+func main() {
+	s, err := scel.LoadFile("pkg/scel/testdata/全国省市区县地名.scel", &scel.LoadOptions{
+		ResolveWordPinyin: true,
+		SkipExt:           true,
+	})
+	if err != nil {
+		panic(err)
+	}
+	w, err := s.Search("shang", "hai")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(w.Words[0])
+	// 上海
 }
 ```
