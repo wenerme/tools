@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/wenerme/tools/pkg/apki/models"
+
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/wenerme/tools/pkg/apk"
@@ -14,14 +16,14 @@ import (
 var regHostname = regexp.MustCompile("^[0-9a-z.-]+[.][0-9a-z.-]+$")
 
 func (s *IndexerServer) RefreshMirror(h string) error {
-	mir := Mirror{}
+	mir := models.Mirror{}
 	if err := s.DB.First(&mir, "host = ", h).Error; err != nil {
 		return err
 	}
 	return s.refreshMirror(&mir)
 }
 
-func (s *IndexerServer) refreshMirror(mir *Mirror) error {
+func (s *IndexerServer) refreshMirror(mir *models.Mirror) error {
 	log := logrus.WithField("host", mir.Host)
 	if time.Since(mir.UpdatedAt) < time.Minute*30 && mir.LastError == "" && mir.Host != "" {
 		log.Info("skip")
@@ -99,7 +101,7 @@ DONE:
 }
 
 func (s *IndexerServer) RefreshAllMirror() error {
-	var all []Mirror
+	var all []models.Mirror
 	if err := s.DB.Find(&all).Error; err != nil {
 		return err
 	}

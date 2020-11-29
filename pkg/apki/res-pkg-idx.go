@@ -6,6 +6,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/wenerme/tools/pkg/apki/models"
+
 	"github.com/emicklei/go-restful/v3"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -31,7 +33,7 @@ func (svc PackageIndexResource) RegisterTo(container *restful.Container) {
 func (svc PackageIndexResource) HandlePackage(req *restful.Request, res *restful.Response) {
 	var all []PackageRepresentation
 	name := req.PathParameter("packageName")
-	if err := svc.DB.Model(&PackageIndex{}).Where("name = ?", name).Order("build_time desc").Find(&all).Error; err != nil {
+	if err := svc.DB.Model(&models.PackageIndex{}).Where("name = ?", name).Order("build_time desc").Find(&all).Error; err != nil {
 		logrus.WithError(err).Error("load packages failed")
 		panic("failed load packages")
 	}
@@ -47,7 +49,7 @@ func (svc PackageIndexResource) Names(req *restful.Request, res *restful.Respons
 	var mod []struct {
 		Name string
 	}
-	if err := svc.DB.Model(&PackageIndex{}).Distinct("name").Select("name").Order("name").Scan(&mod).Error; err != nil {
+	if err := svc.DB.Model(&models.PackageIndex{}).Distinct("name").Select("name").Order("name").Scan(&mod).Error; err != nil {
 		logrus.WithError(err).Error("load names failed")
 		panic("failed load names")
 	}
@@ -66,7 +68,7 @@ func (svc PackageIndexResource) AllOrigins() ([][]string, error) {
 		Name   string
 		Origin string
 	}
-	if err := svc.DB.Model(&PackageIndex{}).Distinct("name").Select("name, origin").Order("name").Scan(&mod).Error; err != nil {
+	if err := svc.DB.Model(&models.PackageIndex{}).Distinct("name").Select("name, origin").Order("name").Scan(&mod).Error; err != nil {
 		return nil, err
 	}
 	m := make(map[string][]string)

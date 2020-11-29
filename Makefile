@@ -13,7 +13,12 @@ lint:
 	golangci-lint run
 
 git-hooks:
-	cp ./scripts/pre-commit .git/hooks/
+	echo -e '#!/usr/bin/env bash\nmake pre-commit' > .git/hooks/pre-commit
+	chmod +x .git/hooks/pre-commit
+	git config pull.rebase true
+
+pre-commit:
+	./scripts/pre-commit
 
 tidy:
 	go mod tidy

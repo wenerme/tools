@@ -3,6 +3,8 @@ package apki
 import (
 	"net/http"
 
+	"github.com/wenerme/tools/pkg/apki/models"
+
 	jsoniter "github.com/json-iterator/go"
 	errors "github.com/pkg/errors"
 )
@@ -38,7 +40,7 @@ func (s *IndexerServer) LoadMirror() error {
 	})
 
 	for _, v := range all {
-		m := Mirror{
+		m := models.Mirror{
 			Name:      v.Name,
 			Location:  v.Location,
 			Bandwidth: v.Bandwidth,

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/wenerme/tools/pkg/apki/models"
+
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -33,7 +35,7 @@ func NewServer(conf *IndexerConf) (*IndexerServer, error) {
 	}
 	if conf.Database.AutoMigrate {
 		logrus.Info("auto migrate")
-		if err := db.AutoMigrate(&Mirror{}, &PackageIndex{}, &Setting{}); err != nil {
+		if err := db.AutoMigrate(&models.Mirror{}, &models.PackageIndex{}, &models.Setting{}); err != nil {
 			return nil, err
 		}
 	}

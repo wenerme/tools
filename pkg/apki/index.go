@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/wenerme/tools/pkg/apki/models"
+
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -61,7 +63,7 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 
 	updatedAt := time.Now()
 	db := s.DB
-	var batch []PackageIndex
+	var batch []models.PackageIndex
 	upsert := func() error {
 		if len(batch) == 0 {
 			return nil
@@ -88,7 +90,7 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 	}
 
 	for i, v := range idx {
-		row := PackageIndex{
+		row := models.PackageIndex{
 			Branch:      c.Branch,
 			Repo:        c.Repo,
 			Arch:        c.Arch,
@@ -127,7 +129,7 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 	}
 	// always updated all :(
 	updated := int64(0)
-	db.Model(PackageIndex{}).Where("updated_at = ?", updatedAt).Count(&updated)
+	db.Model(models.PackageIndex{}).Where("updated_at = ?", updatedAt).Count(&updated)
 	log.WithField("updated", updated).WithField("total", len(idx)).Info("refresh completed")
 	_, _ = s.setSetting(descKey, lastDesc)
 	return nil
@@ -168,7 +170,7 @@ func (s *IndexerServer) RefreshAllIndex() error {
 }
 
 func (s *IndexerServer) getFastestMirror() apk.Mirror {
-	v := Mirror{}
+	v := models.Mirror{}
 	s.DB.Order("last_refresh_duration asc").Where("last_error = '' and url <> ''").First(&v)
 	return apk.Mirror(v.URL)
 }
@@ -189,9 +191,9 @@ func (s *IndexerServer) IndexCoordinates() ([]IndexCoordinate, error) {
 	return all, nil
 }
 
-func (s *IndexerServer) setSetting(name string, v interface{}) (*Setting, error) {
+func (s *IndexerServer) setSetting(name string, v interface{}) (*models.Setting, error) {
 	db := s.DB
-	r := Setting{
+	r := models.Setting{
 		Name: name,
 	}
 	var err error
@@ -211,8 +213,8 @@ func (s *IndexerServer) setSetting(name string, v interface{}) (*Setting, error)
 	}
 	return &r, err
 }
-func (s *IndexerServer) getSetting(name string, out interface{}) (*Setting, error) {
-	r := Setting{}
+func (s *IndexerServer) getSetting(name string, out interface{}) (*models.Setting, error) {
+	r := models.Setting{}
 	if err := s.DB.First(&r, "name = ?", name).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil

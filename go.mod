@@ -6,9 +6,10 @@ require (
 	github.com/GeertJohan/go.rice v1.0.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/emicklei/go-restful/v3 v3.4.0
+	github.com/go-git/go-git/v5 v5.2.0
 	github.com/gorilla/mux v1.8.0
 	github.com/json-iterator/go v1.1.10
-	github.com/lib/pq v1.3.0
+	github.com/lib/pq v1.8.0
 	github.com/magiconair/properties v1.8.0
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible

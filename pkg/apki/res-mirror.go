@@ -3,6 +3,7 @@ package apki
 import (
 	"github.com/emicklei/go-restful/v3"
 	"github.com/sirupsen/logrus"
+	"github.com/wenerme/tools/pkg/apki/models"
 	"gorm.io/gorm"
 )
 
@@ -25,7 +26,7 @@ func (svc MirrorResource) RegisterTo(container *restful.Container) {
 func (svc MirrorResource) Mirror(req *restful.Request, res *restful.Response) {
 	host := req.PathParameter("mirror-host")
 	var ent MirrorRepresentation
-	if err := svc.DB.Model(Mirror{}).First(&ent, "host = ?", host).Error; err != nil {
+	if err := svc.DB.Model(models.Mirror{}).First(&ent, "host = ?", host).Error; err != nil {
 		logrus.WithError(err).Error("load mirror failed")
 		panic("failed load data")
 	}
@@ -36,7 +37,7 @@ func (svc MirrorResource) Mirrors(req *restful.Request, res *restful.Response) {
 	var all []MirrorRepresentation
 	if v, ok := _cache.Get("mirrors"); ok {
 		all = v.([]MirrorRepresentation)
-	} else if err := svc.DB.Model(&Mirror{}).Find(&all).Error; err != nil {
+	} else if err := svc.DB.Model(&models.Mirror{}).Find(&all).Error; err != nil {
 		logrus.WithError(err).Error("load mirrors failed")
 		panic("failed load data")
 	}

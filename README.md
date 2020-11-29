@@ -14,6 +14,8 @@ Build  | Coverage
 * AlpineLinux package indexer
 * `pkg/apki`
 * [alpine.ink](https://alpine.ink)
+  * [wenerme/apki-web](https://github.com/wenerme/apki-web) - Frontend
+    * Hosted on [vercel](https://vercel.com/)
 
 ## libmagic
 linmagic Golang wrapper
