@@ -2,9 +2,8 @@ package apki
 
 import (
 	"net/http"
-	"time"
 
-	"github.com/patrickmn/go-cache"
+	"github.com/wenerme/tools/pkg/apki/apis"
 
 	"github.com/emicklei/go-restful/v3"
 	"github.com/gorilla/mux"
@@ -12,12 +11,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var _cache = cache.New(15*time.Minute, 5*time.Minute)
-
 func (s *IndexerServer) ServeWeb() error {
 	c := restful.NewContainer()
-	MirrorResource{DB: s.DB}.RegisterTo(c)
-	PackageIndexResource{DB: s.DB}.RegisterTo(c)
+	apis.MirrorResource{DB: s.DB}.RegisterTo(c)
+	apis.PackageIndexResource{DB: s.DB}.RegisterTo(c)
 
 	cors := restful.CrossOriginResourceSharing{
 		AllowedDomains: []string{"localhost:3000", "alpine.ink"},

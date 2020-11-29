@@ -11,7 +11,7 @@ import (
 )
 
 type PackageIndex struct {
-	gorm.Model
+	Model
 	Branch      string `gorm:"index"`
 	Repo        string `gorm:"index"`
 	Arch        string `gorm:"index"`
@@ -35,22 +35,37 @@ type PackageIndex struct {
 	MaintainerEmail string
 	Path            string `gorm:"uniqueIndex"`
 	Key             string `gorm:"uniqueIndex"` // $BRANCH/$REPO/$ARCH/$NAME
+
+	// extra
+	CommitData     *Commit         `gorm:"-"`
+	DependPackages []*PackageIndex `gorm:"-"`
 }
 
-func (p *PackageIndex) BeforeSave(tx *gorm.DB) (err error) {
-	if anyEmpty(p.Branch, p.Repo, p.Arch, p.Name, p.Version) {
+func (m *PackageIndex) BeforeSave(tx *gorm.DB) (err error) {
+	if anyEmpty(m.Branch, m.Repo, m.Arch, m.Name, m.Version) {
 		return errors.New("invalid package index: contain empty field")
 	}
-	p.Key = fmt.Sprintf("%v/%v/%v/%v", p.Branch, p.Repo, p.Arch, p.Name)
-	p.Path = fmt.Sprintf("%v-%v.apk", p.Key, p.Version)
-	if p.Maintainer != "" {
-		addr, err := mail.ParseAddress(p.Maintainer)
+	m.Key = fmt.Sprintf("%v/%v/%v/%v", m.Branch, m.Repo, m.Arch, m.Name)
+	m.Path = fmt.Sprintf("%v-%v.apk", m.Key, m.Version)
+	if m.Maintainer != "" {
+		addr, err := mail.ParseAddress(m.Maintainer)
 		if err == nil {
-			p.MaintainerName = addr.Name
-			p.MaintainerEmail = addr.Address
+			m.MaintainerName = addr.Name
+			m.MaintainerEmail = addr.Address
 		}
 	}
 	return nil
+}
+
+func (m *PackageIndex) GetCommitData() (*Commit, error) {
+	if m.CommitData != nil {
+		return m.CommitData, nil
+	}
+	if m.Commit == "" {
+		return nil, nil
+	}
+	m.CommitData = &Commit{}
+	return m.CommitData, m.DB.Find(m.CommitData, "hash = ?", m.Commit).Error
 }
 
 func anyEmpty(a ...string) bool {

@@ -1,10 +1,13 @@
-package apki
+package apis
 
 import (
 	"bytes"
 	"net/http"
 	"sort"
 	"strings"
+
+	"github.com/wenerme/tools/pkg/apki/convert"
+	"github.com/wenerme/tools/pkg/apki/structs"
 
 	"github.com/wenerme/tools/pkg/apki/models"
 
@@ -26,23 +29,22 @@ func (svc PackageIndexResource) RegisterTo(container *restful.Container) {
 
 	ws.Route(ws.GET("/names.txt").To(svc.Names).Produces("text/plain"))
 	ws.Route(ws.GET("/origins.txt").To(svc.Origins).Produces("text/plain"))
-	ws.Route(ws.GET("/{packageName}").To(svc.HandlePackage))
+	ws.Route(ws.GET("/{packageName}").To(svc.GetResource))
 
 	container.Add(ws)
 }
-func (svc PackageIndexResource) HandlePackage(req *restful.Request, res *restful.Response) {
-	var all []PackageRepresentation
+func (svc PackageIndexResource) GetResource(req *restful.Request, res *restful.Response) {
 	name := req.PathParameter("packageName")
-	if err := svc.DB.Model(&models.PackageIndex{}).Where("name = ?", name).Order("build_time desc").Find(&all).Error; err != nil {
-		logrus.WithError(err).Error("load packages failed")
-		panic("failed load packages")
+	var all []*models.PackageIndex
+	throwError(svc.DB.Where("name = ?", name).Order("build_time desc").Find(&all).Error, "load packages failed")
+	var r []*structs.PackageIndex
+	conv := &convert.Context{}
+	for _, v := range all {
+		s, err := convert.ToPackageIndex(conv, v)
+		r = append(r, s)
+		throwError(err, "convert struct")
 	}
-	swallowError(res.WriteEntity(all), "write entity")
-}
-func swallowError(err error, format string, args ...interface{}) {
-	if err != nil {
-		logrus.WithError(err).Warnf(format, args...)
-	}
+	swallowError(res.WriteEntity(r), "write entity")
 }
 
 func (svc PackageIndexResource) Names(req *restful.Request, res *restful.Response) {

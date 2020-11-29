@@ -108,7 +108,7 @@ func (s *IndexerServer) RefreshIndex(c IndexCoordinate) error {
 			Depends:     v.Depends,
 			Provides:    v.Provides,
 			InstallIf:   v.InstallIf,
-			Model: gorm.Model{
+			Model: models.Model{
 				UpdatedAt: updatedAt,
 			},
 		}

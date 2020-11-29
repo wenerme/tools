@@ -28,7 +28,7 @@ func (r *Repo) IndexArchive() (IndexArchive, error) {
 	}
 	return *r.idx, nil
 }
-func (r *Repo) Index() (Index, error) {
+func (r Repo) Index() (Index, error) {
 	ar, err := r.IndexArchive()
 	return ar.Index, err
 }

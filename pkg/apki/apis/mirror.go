@@ -1,4 +1,4 @@
-package apki
+package apis
 
 import (
 	"github.com/emicklei/go-restful/v3"

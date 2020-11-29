@@ -1,6 +1,6 @@
 //go:generate gomodifytags -file dto.go -w -all -add-tags json -transform camelcase
 // go get github.com/fatih/gomodifytags
-package apki
+package apis
 
 import (
 	"time"
